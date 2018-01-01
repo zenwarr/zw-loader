@@ -1,11 +1,11 @@
 {
   "name": "@zcomp/loader",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@zcomp/base": "0.0.7"
+    "@zcomp/base": "0.0.8"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
