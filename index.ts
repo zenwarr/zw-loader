@@ -143,44 +143,15 @@ export class Loader extends base.Component<LoaderOptions> {
   }
 
   load(): void {
-    if (!this.options.loader) {
-      throw new Error('Cannot load content: loader option is empty');
-    }
-
-    if (!this.url) {
-      this._setState(LoadState.Loaded);
+    if (this.loadState === LoadState.Loaded || this.loadState === LoadState.Loading) {
       return;
     }
 
-    if (this.options.instantLoadTimeout != null && this.options.instantLoadTimeout > 0) {
-      setTimeout(() => {
-        if (this._state === LoadState.NotLoaded) {
-          this._setState(LoadState.Loading);
-        }
-      }, 0);
-    } else {
-      this._setState(LoadState.Loading);
-    }
+    this._load();
+  }
 
-    this.options.loader(this.url, (err, content) => {
-      if (err) {
-        this._setError(err);
-        return;
-      }
-
-      if (this.options.applier) {
-        this.options.applier(this, content, (err) => {
-          if (err) {
-            this._setError(err);
-          } else {
-            this._setState(LoadState.Loaded);
-          }
-        });
-      } else {
-        this.applyContent(content || '');
-        this._setState(LoadState.Loaded);
-      }
-    }, this);
+  reload(): void {
+    this._load();
   }
 
   get url(): string|null {
@@ -225,6 +196,47 @@ export class Loader extends base.Component<LoaderOptions> {
 
   protected _state: LoadState = LoadState.NotLoaded;
   protected _plainText: boolean = false;
+
+  protected _load(): void {
+    if (!this.options.loader) {
+      throw new Error('Cannot load content: loader option is empty');
+    }
+
+    if (!this.url) {
+      this._setState(LoadState.Loaded);
+      return;
+    }
+
+    if (this.options.instantLoadTimeout != null && this.options.instantLoadTimeout > 0) {
+      setTimeout(() => {
+        if (this._state === LoadState.NotLoaded) {
+          this._setState(LoadState.Loading);
+        }
+      }, 0);
+    } else {
+      this._setState(LoadState.Loading);
+    }
+
+    this.options.loader(this.url, (err, content) => {
+      if (err) {
+        this._setError(err);
+        return;
+      }
+
+      if (this.options.applier) {
+        this.options.applier(this, content, (err) => {
+          if (err) {
+            this._setError(err);
+          } else {
+            this._setState(LoadState.Loaded);
+          }
+        });
+      } else {
+        this.applyContent(content || '');
+        this._setState(LoadState.Loaded);
+      }
+    }, this);
+  }
 
   protected _setState(state: LoadState): void {
     this._state = state;

@@ -55,6 +55,57 @@ describe("Loader", function () {
     expect(loader.loadState).to.be.equal(LoadState.Loaded);
   });
 
+  it('should not load twice', function () {
+    init(`<div class="js-load" data-load="res_id" id="load"></div>`);
+
+    let loader = LoaderFactory.createComp(Loader, elem('load'), {
+      loader: (url, cb, component) => {
+        cb(null, 'some response');
+      },
+      instantLoadTimeout: 0
+    });
+
+    let fireCount = 0;
+    loader.root.addEventListener(DefaultOptions.loadStateChangedEvent || '', () => ++fireCount);
+
+    loader.load();
+    expect(loader.loadState).to.be.equal(LoadState.Loaded);
+    expect(fireCount).to.be.equal(2);
+
+    loader.load();
+    expect(fireCount).to.be.equal(2);
+    expect(loader.loadState).to.be.equal(LoadState.Loaded);
+  });
+
+  it('should reload', function () {
+    init(`<div class="js-load" data-load="res_id" id="load"></div>`);
+
+    let loaderCallCount = 0;
+    let loader = LoaderFactory.createComp(Loader, elem('load'), {
+      loader: (url, cb, component) => {
+        if (loaderCallCount > 0) {
+          cb(null, 'second response');
+        } else {
+          cb(null, 'some response');
+        }
+        ++loaderCallCount;
+      },
+      instantLoadTimeout: 0
+    });
+
+    let fireCount = 0;
+    loader.root.addEventListener(DefaultOptions.loadStateChangedEvent || '', () => ++fireCount);
+
+    loader.load();
+    expect(loader.loadState).to.be.equal(LoadState.Loaded);
+    expect(fireCount).to.be.equal(2);
+
+    loader.reload();
+    expect(loader.loadState).to.be.equal(LoadState.Loaded);
+    expect(fireCount).to.be.equal(4);
+    expect(elem('load').textContent).to.be.equal('second response');
+  });
+
   it('should fire events', function () {
     init(`<div class="js-load" data-load="res_id" id="load"></div>`);
 

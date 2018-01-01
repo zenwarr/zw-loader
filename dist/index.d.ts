@@ -78,12 +78,14 @@ export declare class Loader extends base.Component<LoaderOptions> {
     readonly plainText: boolean;
     readonly loadState: LoadState;
     load(): void;
+    reload(): void;
     url: string | null;
     readonly contentElement: Element;
     applyContent(content: string): void;
     /** Protected area **/
     protected _state: LoadState;
     protected _plainText: boolean;
+    protected _load(): void;
     protected _setState(state: LoadState): void;
     protected _syncClasses(): void;
     protected _setError(err: Error): void;
