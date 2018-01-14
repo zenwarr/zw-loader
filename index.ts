@@ -176,7 +176,8 @@ export class Loader extends base.Component<LoaderOptions> {
 
   get contentElement(): Element {
     if (this.options.contentSelector) {
-      let elem = this.root.querySelector(this.options.contentSelector);
+      let elem: Element|null = null;
+      this._each(this.options.contentSelector, e => elem = e);
       if (elem) {
         return elem;
       }
@@ -265,10 +266,7 @@ export class Loader extends base.Component<LoaderOptions> {
     this._setState(LoadState.LoadError);
 
     if (this.options.errorSelector) {
-      let errElems = this.root.querySelectorAll(this.options.errorSelector);
-      for (let q = 0; q < errElems.length; ++q) {
-        errElems[q].textContent = err.message;
-      }
+      this._each(this.options.errorSelector, elem => elem.textContent = err.message);
     }
   }
 }

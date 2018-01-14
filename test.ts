@@ -138,4 +138,38 @@ describe("Loader", function () {
     expect(elem('error').innerHTML).to.be.equal('error text');
     expect(loader.root.classList.contains('js-load--error')).to.be.true;
   });
+
+  it('should handle nested loaders', function () {
+    init(`<div class="js-load" data-load="res_id" id="load">
+      <div class="js-load">
+        <div class="js-load__content" id="load-content-nested"></div>
+      </div>
+      <div class="js-load__content" id="load-content"></div>
+    </div>`);
+
+    LoaderFactory.init({
+      loader: (url, cb) => cb(null, 'loaded content')
+    });
+    let loader = LoaderFactory.fromRoot(elem('load')) as Loader;
+    loader.load();
+    expect(elem('load-content').textContent).to.be.equal('loaded content');
+    expect(elem('load-content-nested').textContent).to.be.equal('');
+  });
+
+  it('should handle nested loaders (errors)', function () {
+    init(`<div class="js-load" data-load="res_id" id="load">
+      <div class="js-load">
+        <div class="js-load__error" id="load-error-nested"></div>
+      </div>
+      <div class="js-load__error" id="load-error"></div>
+    </div>`);
+
+    LoaderFactory.init({
+      loader: (url, cb) => cb(new Error('error text'), null)
+    });
+    let loader = LoaderFactory.fromRoot(elem('load')) as Loader;
+    loader.load();
+    expect(elem('load-error').textContent).to.be.equal('error text');
+    expect(elem('load-error-nested').textContent).to.be.equal('');
+  });
 });
